@@ -48,6 +48,12 @@
                 <p id="light">OFF</p>
             </div>
 
+	<div class="card">
+    		<div class="icon">☀️</div>
+   		 <h3>LDR Value</h3>
+    		<p id="ldr">--</p>
+	</div>
+
         </section>
 
 
@@ -209,6 +215,9 @@
             document.getElementById("moisture").innerText =
                 `${data.moisture ?? "--"} %`;
 
+	    document.getElementById("ldr").innerText =
+    	    `${data.ldr ?? "--"} `;
+
             document.getElementById("light").innerText =
                 data.light ? "ON" : "OFF";
 
@@ -326,3 +335,5 @@
 </body>
 
 </html>
+
+Ei code thke HTML ar JS File alada kore dau kono kichu change korba nah 
