@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Mushroom Farming</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>🍄 Smart Mushroom Farming</h1>
+        <p>IoT Based Mushroom Monitoring System</p>
+    </header>
+
+
+    <main>
+
+        <!-- Sensor Dashboard -->
+        <section class="dashboard">
+
+            <div class="card">
+                <div class="icon">🌡️</div>
+                <h3>Temperature</h3>
+                <p id="temperature">-- °C</p>
+            </div>
+
+            <div class="card">
+                <div class="icon">💧</div>
+                <h3>Humidity</h3>
+                <p id="humidity">-- %</p>
+            </div>
+
+            <div class="card">
+                <div class="icon">🌱</div>
+                <h3>Moisture</h3>
+                <p id="moisture">-- %</p>
+            </div>
+
+            <div class="card">
+                <div class="icon">💡</div>
+                <h3>Light</h3>
+                <p id="light">OFF</p>
+            </div>
+
+        </section>
+
+
+        <!-- Device Control -->
+        <section class="control-section">
+
+            <h2>⚙️ Device Control</h2>
+
+            <div class="controls">
+
+                <!-- Fan -->
+                <div class="control-card">
+
+                    <h3>🌀 Fan</h3>
+
+                    <button id="fanButton" onclick="toggleFan()">
+                        Turn ON
+                    </button>
+
+                    <p id="fanStatus">
+                        Status: OFF
+                    </p>
+
+                </div>
+
+
+                <!-- Water Pump -->
+                <div class="control-card">
+
+                    <h3>💦 Water Pump</h3>
+
+                    <button id="pumpButton" onclick="togglePump()">
+                        Turn ON
+                    </button>
+
+                    <p id="pumpStatus">
+                        Status: OFF
+                    </p>
+
+                </div>
+
+
+                <!-- Light -->
+                <div class="control-card">
+
+                    <h3>💡 Light</h3>
+
+                    <button id="lightButton" onclick="toggleLight()">
+                        Turn ON
+                    </button>
+
+                    <p id="lightStatus">
+                        Status: OFF
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- System Status -->
+        <section class="status-section">
+
+            <h2>📡 System Status</h2>
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <span id="systemStatus">
+                    Firebase Connected
+                </span>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+        <p>Smart Mushroom Farming System © 2026</p>
+    </footer>
+
+
+    <!-- Firebase -->
+    <script type="module">
+
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+
+        import {
+            getDatabase,
+            ref,
+            onValue,
+            set
+        } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+
+        // Firebase Configuration
+        const firebaseConfig = {
+
+            apiKey: "AIzaSyAhjXNeVnJEymbnmInltUSluDRqht5RXXE",
+
+            authDomain: "smart-mushroom-farming-e6479.firebaseapp.com",
+
+            databaseURL: "https://smart-mushroom-farming-e6479-default-rtdb.firebaseio.com",
+
+            projectId: "smart-mushroom-farming-e6479",
+
+            storageBucket: "smart-mushroom-farming-e6479.firebasestorage.app",
+
+            messagingSenderId: "852956091265",
+
+            appId: "1:852956091265:web:e81ab15fa87f6978a18e80",
+
+            measurementId: "G-3TRJVN24V4"
+        };
+
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        const db = getDatabase(app);
+
+
+        // Database Reference
+        const farmRef = ref(db, "mushroomFarm");
+
+
+        // Read Firebase data
+        onValue(farmRef, (snapshot) => {
+
+            const data = snapshot.val();
+
+            if (!data) {
+
+                document.getElementById("systemStatus").innerText =
+                    "Firebase Connected - No Data";
+
+                return;
+            }
+
+
+            // =========================
+            // SENSOR DATA
+            // =========================
+
+            document.getElementById("temperature").innerText =
+                `${data.temperature ?? "--"} °C`;
+
+            document.getElementById("humidity").innerText =
+                `${data.humidity ?? "--"} %`;
+
+            document.getElementById("moisture").innerText =
+                `${data.moisture ?? "--"} %`;
+
+            document.getElementById("light").innerText =
+                data.light ? "ON" : "OFF";
+
+
+            // =========================
+            // FAN
+            // =========================
+
+            const fanStatus = data.fan === true;
+
+            document.getElementById("fanStatus").innerText =
+                `Status: ${fanStatus ? "ON" : "OFF"}`;
+
+            document.getElementById("fanButton").innerText =
+                fanStatus ? "Turn OFF" : "Turn ON";
+
+
+            // =========================
+            // WATER PUMP
+            // =========================
+
+            const pumpStatus = data.pump === true;
+
+            document.getElementById("pumpStatus").innerText =
+                `Status: ${pumpStatus ? "ON" : "OFF"}`;
+
+            document.getElementById("pumpButton").innerText =
+                pumpStatus ? "Turn OFF" : "Turn ON";
+
+
+            // =========================
+            // LIGHT
+            // =========================
+
+            const lightStatus = data.light === true;
+
+            document.getElementById("lightStatus").innerText =
+                `Status: ${lightStatus ? "ON" : "OFF"}`;
+
+            document.getElementById("lightButton").innerText =
+                lightStatus ? "Turn OFF" : "Turn ON";
+
+
+            // System Status
+            document.getElementById("systemStatus").innerText =
+                "Firebase Connected";
+
+        });
+
+
+        // =========================
+        // FAN CONTROL
+        // =========================
+
+        window.toggleFan = function () {
+
+            const fanRef = ref(db, "mushroomFarm/fan");
+
+            onValue(fanRef, (snapshot) => {
+
+                const currentStatus = snapshot.val() === true;
+
+                set(fanRef, !currentStatus);
+
+            }, {
+                onlyOnce: true
+            });
+
+        };
+
+
+        // =========================
+        // WATER PUMP CONTROL
+        // =========================
+
+        window.togglePump = function () {
+
+            const pumpRef = ref(db, "mushroomFarm/pump");
+
+            onValue(pumpRef, (snapshot) => {
+
+                const currentStatus = snapshot.val() === true;
+
+                set(pumpRef, !currentStatus);
+
+            }, {
+                onlyOnce: true
+            });
+
+        };
+
+
+        // =========================
+        // LIGHT CONTROL
+        // =========================
+
+        window.toggleLight = function () {
+
+            const lightRef = ref(db, "mushroomFarm/light");
+
+            onValue(lightRef, (snapshot) => {
+
+                const currentStatus = snapshot.val() === true;
+
+                set(lightRef, !currentStatus);
+
+            }, {
+                onlyOnce: true
+            });
+
+        };
+
+    </script>
+
+</body>
+
+</html>
